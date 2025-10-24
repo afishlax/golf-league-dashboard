@@ -90,10 +90,11 @@ async function createTeam(teamData) {
     name: teamData.name || '',
     player1: teamData.player1,
     player2: teamData.player2,
-    paymentStatus: teamData.paymentStatus || 'Not Paid'
+    player1Payment: teamData.player1Payment || 'Not Paid',
+    player2Payment: teamData.player2Payment || 'Not Paid'
   };
   teams.push(newTeam);
-  await writeCSV(TEAMS_FILE, teams, ['id', 'name', 'player1', 'player2', 'paymentStatus']);
+  await writeCSV(TEAMS_FILE, teams, ['id', 'name', 'player1', 'player2', 'player1Payment', 'player2Payment']);
   return newId;
 }
 
@@ -108,15 +109,16 @@ async function updateTeam(id, teamData) {
     name: teamData.name || '',
     player1: teamData.player1,
     player2: teamData.player2,
-    paymentStatus: teamData.paymentStatus || 'Not Paid'
+    player1Payment: teamData.player1Payment || 'Not Paid',
+    player2Payment: teamData.player2Payment || 'Not Paid'
   };
-  await writeCSV(TEAMS_FILE, teams, ['id', 'name', 'player1', 'player2', 'paymentStatus']);
+  await writeCSV(TEAMS_FILE, teams, ['id', 'name', 'player1', 'player2', 'player1Payment', 'player2Payment']);
 }
 
 async function deleteTeam(id) {
   const teams = await readCSV(TEAMS_FILE);
   const filtered = teams.filter(t => t.id !== Number(id));
-  await writeCSV(TEAMS_FILE, filtered, ['id', 'name', 'player1', 'player2', 'paymentStatus']);
+  await writeCSV(TEAMS_FILE, filtered, ['id', 'name', 'player1', 'player2', 'player1Payment', 'player2Payment']);
 }
 
 // ========== COURSES OPERATIONS ==========

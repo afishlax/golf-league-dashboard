@@ -2,14 +2,17 @@ import React from 'react';
 import { Card, Table, Row, Col, Badge } from 'react-bootstrap';
 
 function Teams({ teams }) {
-  const getPaymentBadge = (paymentStatus) => {
-    if (!paymentStatus || paymentStatus === 'Not Paid') {
+  const getPaymentBadge = (payment) => {
+    if (!payment || payment === 'Not Paid') {
       return <Badge bg="danger">Not Paid</Badge>;
     }
     return <Badge bg="success">Paid</Badge>;
   };
 
-  const teamsPaid = teams.filter(t => t.paymentStatus && t.paymentStatus !== 'Not Paid').length;
+  const teamsPaid = teams.filter(t =>
+    (t.player1Payment && t.player1Payment !== 'Not Paid') &&
+    (t.player2Payment && t.player2Payment !== 'Not Paid')
+  ).length;
   const teamsUnpaid = teams.length - teamsPaid;
 
   return (
@@ -24,9 +27,9 @@ function Teams({ teams }) {
                   <th>Team ID</th>
                   <th>Team Name</th>
                   <th>Player 1</th>
+                  <th>Player 1 Payment</th>
                   <th>Player 2</th>
-                  <th>Payment Status</th>
-                  <th>Payment Details</th>
+                  <th>Player 2 Payment</th>
                 </tr>
               </thead>
               <tbody>
@@ -35,10 +38,18 @@ function Teams({ teams }) {
                     <td>{team.id}</td>
                     <td><strong>{team.name}</strong></td>
                     <td>{team.player1}</td>
+                    <td>
+                      {getPaymentBadge(team.player1Payment)}
+                      {team.player1Payment && team.player1Payment !== 'Not Paid' && (
+                        <><br /><small className="text-muted">{team.player1Payment}</small></>
+                      )}
+                    </td>
                     <td>{team.player2}</td>
-                    <td>{getPaymentBadge(team.paymentStatus)}</td>
-                    <td className="text-muted">
-                      <small>{team.paymentStatus === 'Not Paid' ? '-' : team.paymentStatus}</small>
+                    <td>
+                      {getPaymentBadge(team.player2Payment)}
+                      {team.player2Payment && team.player2Payment !== 'Not Paid' && (
+                        <><br /><small className="text-muted">{team.player2Payment}</small></>
+                      )}
                     </td>
                   </tr>
                 ))}

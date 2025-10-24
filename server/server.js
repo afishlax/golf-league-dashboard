@@ -56,8 +56,8 @@ app.get('/api/teams/:id', async (req, res) => {
 // Create new team
 app.post('/api/teams', async (req, res) => {
   try {
-    const { name, player1, player2, paymentStatus } = req.body;
-    const id = await db.createTeam({ name, player1, player2, paymentStatus });
+    const { name, player1, player2, player1Payment, player2Payment } = req.body;
+    const id = await db.createTeam({ name, player1, player2, player1Payment, player2Payment });
     res.json({ id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -67,8 +67,8 @@ app.post('/api/teams', async (req, res) => {
 // Update team
 app.put('/api/teams/:id', async (req, res) => {
   try {
-    const { name, player1, player2, paymentStatus } = req.body;
-    await db.updateTeam(req.params.id, { name, player1, player2, paymentStatus });
+    const { name, player1, player2, player1Payment, player2Payment } = req.body;
+    await db.updateTeam(req.params.id, { name, player1, player2, player1Payment, player2Payment });
     res.json({ message: 'Team updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });

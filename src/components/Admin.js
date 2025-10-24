@@ -65,7 +65,8 @@ function Admin({ teams, setTeams, onLogout }) {
       name: '',
       player1: '',
       player2: '',
-      paymentStatus: 'Not Paid'
+      player1Payment: 'Not Paid',
+      player2Payment: 'Not Paid'
     };
     setEditingTeam({ id: newId });
     setFormData(newTeam);
@@ -83,7 +84,7 @@ function Admin({ teams, setTeams, onLogout }) {
         </Card.Header>
         <Card.Body>
           <Alert variant="warning">
-            <strong>Admin Mode:</strong> You can edit team information, player names, and payment status here. Changes are saved to localStorage.
+            <strong>Admin Mode:</strong> You can edit team information, player names, and individual player payments here. Changes are saved to the server.
           </Alert>
 
           <Button variant="success" className="mb-3" onClick={handleAddTeam}>
@@ -96,8 +97,9 @@ function Admin({ teams, setTeams, onLogout }) {
                 <th>ID</th>
                 <th>Team Name</th>
                 <th>Player 1</th>
+                <th>Player 1 Payment</th>
                 <th>Player 2</th>
-                <th>Payment Status</th>
+                <th>Player 2 Payment</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -107,15 +109,24 @@ function Admin({ teams, setTeams, onLogout }) {
                   <td>{team.id}</td>
                   <td>{team.name || <em className="text-muted">(No team name)</em>}</td>
                   <td>{team.player1}</td>
-                  <td>{team.player2}</td>
                   <td>
-                    {team.paymentStatus === 'Not Paid' ? (
+                    {team.player1Payment === 'Not Paid' ? (
                       <span className="badge bg-danger">Not Paid</span>
                     ) : (
                       <span className="badge bg-success">Paid</span>
                     )}
                     <br />
-                    <small className="text-muted">{team.paymentStatus}</small>
+                    <small className="text-muted">{team.player1Payment}</small>
+                  </td>
+                  <td>{team.player2}</td>
+                  <td>
+                    {team.player2Payment === 'Not Paid' ? (
+                      <span className="badge bg-danger">Not Paid</span>
+                    ) : (
+                      <span className="badge bg-success">Paid</span>
+                    )}
+                    <br />
+                    <small className="text-muted">{team.player2Payment}</small>
                   </td>
                   <td>
                     <Button
@@ -186,30 +197,30 @@ function Admin({ teams, setTeams, onLogout }) {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Payment Status</Form.Label>
-              <Form.Select
-                name="paymentStatus"
-                value={formData.paymentStatus || 'Not Paid'}
+              <Form.Label>Player 1 Payment</Form.Label>
+              <Form.Control
+                type="text"
+                name="player1Payment"
+                value={formData.player1Payment || 'Not Paid'}
                 onChange={handleChange}
-              >
-                <option value="Not Paid">Not Paid</option>
-                <option value="Partial">Partial Payment</option>
-                <option value="Paid">Paid</option>
-              </Form.Select>
+                placeholder="e.g., Cash 10/20, Venmo 10/15, Not Paid"
+              />
+              <Form.Text className="text-muted">
+                Enter payment method and date, or "Not Paid"
+              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Payment Details</Form.Label>
+              <Form.Label>Player 2 Payment</Form.Label>
               <Form.Control
-                as="textarea"
-                rows={2}
-                name="paymentStatus"
-                value={formData.paymentStatus || ''}
+                type="text"
+                name="player2Payment"
+                value={formData.player2Payment || 'Not Paid'}
                 onChange={handleChange}
-                placeholder="e.g., Both Cash 10/20, Player1 Venmo 10/15, etc."
+                placeholder="e.g., Cash 10/20, Venmo 10/15, Not Paid"
               />
               <Form.Text className="text-muted">
-                Enter detailed payment information
+                Enter payment method and date, or "Not Paid"
               </Form.Text>
             </Form.Group>
           </Form>
