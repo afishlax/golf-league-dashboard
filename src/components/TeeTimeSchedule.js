@@ -114,7 +114,6 @@ function TeeTimeSchedule({ teams, schedule }) {
                 <Form.Select
                   value={selectedTeamId}
                   onChange={(e) => setSelectedTeamId(e.target.value)}
-                  disabled={isTeamAlreadyBooked()}
                 >
                   <option value="">Choose your team...</option>
                   {teams.map(team => (
@@ -125,7 +124,7 @@ function TeeTimeSchedule({ teams, schedule }) {
                 </Form.Select>
                 {isTeamAlreadyBooked() && (
                   <Form.Text className="text-warning">
-                    Team already booked for this week
+                    This team is already booked for this week
                   </Form.Text>
                 )}
               </Form.Group>
