@@ -4,153 +4,140 @@ const bodyParser = require('body-parser');
 const { db, initializeDatabase, importInitialData } = require('./database');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // Initialize database before starting server
-initializeDatabase(() => {
-  importInitialData();
-});
+(async () => {
+  await initializeDatabase();
+  await importInitialData();
+})();
 
 // ========== TEAMS ENDPOINTS ==========
 
 // Get all teams
-app.get('/api/teams', (req, res) => {
-  db.all('SELECT * FROM teams ORDER BY id', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
+app.get('/api/teams', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM teams ORDER BY id');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get single team
-app.get('/api/teams/:id', (req, res) => {
-  db.get('SELECT * FROM teams WHERE id = ?', [req.params.id], (err, row) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(row);
-  });
+app.get('/api/teams/:id', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM teams WHERE id = $1', [req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create new team
-app.post('/api/teams', (req, res) => {
-  const { name, player1, player2, paymentStatus } = req.body;
-  db.run(
-    'INSERT INTO teams (name, player1, player2, paymentStatus) VALUES (?, ?, ?, ?)',
-    [name, player1, player2, paymentStatus || 'Not Paid'],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ id: this.lastID });
-    }
-  );
+app.post('/api/teams', async (req, res) => {
+  try {
+    const { name, player1, player2, paymentStatus } = req.body;
+    const result = await db.query(
+      'INSERT INTO teams (name, player1, player2, paymentStatus) VALUES ($1, $2, $3, $4) RETURNING id',
+      [name, player1, player2, paymentStatus || 'Not Paid']
+    );
+    res.json({ id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update team
-app.put('/api/teams/:id', (req, res) => {
-  const { name, player1, player2, paymentStatus } = req.body;
-  db.run(
-    'UPDATE teams SET name = ?, player1 = ?, player2 = ?, paymentStatus = ? WHERE id = ?',
-    [name, player1, player2, paymentStatus, req.params.id],
-    (err) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ message: 'Team updated successfully' });
-    }
-  );
+app.put('/api/teams/:id', async (req, res) => {
+  try {
+    const { name, player1, player2, paymentStatus } = req.body;
+    await db.query(
+      'UPDATE teams SET name = $1, player1 = $2, player2 = $3, paymentStatus = $4 WHERE id = $5',
+      [name, player1, player2, paymentStatus, req.params.id]
+    );
+    res.json({ message: 'Team updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete team
-app.delete('/api/teams/:id', (req, res) => {
-  db.run('DELETE FROM teams WHERE id = ?', [req.params.id], (err) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
+app.delete('/api/teams/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM teams WHERE id = $1', [req.params.id]);
     res.json({ message: 'Team deleted successfully' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ========== COURSES ENDPOINTS ==========
 
 // Get all courses
-app.get('/api/courses', (req, res) => {
-  db.all('SELECT * FROM courses', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
+app.get('/api/courses', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM courses');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ========== SCORES ENDPOINTS ==========
 
 // Get all scores
-app.get('/api/scores', (req, res) => {
-  db.all('SELECT * FROM scores ORDER BY date DESC', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
+app.get('/api/scores', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM scores ORDER BY date DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create new score
-app.post('/api/scores', (req, res) => {
-  const { teamId, courseName, week, date, player1Score, player2Score, teamTotal } = req.body;
-  db.run(
-    'INSERT INTO scores (teamId, courseName, week, date, player1Score, player2Score, teamTotal) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [teamId, courseName, week, date, player1Score, player2Score, teamTotal],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ id: this.lastID });
-    }
-  );
+app.post('/api/scores', async (req, res) => {
+  try {
+    const { teamId, courseName, week, date, player1Score, player2Score, teamTotal } = req.body;
+    const result = await db.query(
+      'INSERT INTO scores (teamId, courseName, week, date, player1Score, player2Score, teamTotal) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [teamId, courseName, week, date, player1Score, player2Score, teamTotal]
+    );
+    res.json({ id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ========== HANDICAPS ENDPOINTS ==========
 
 // Get all handicaps
-app.get('/api/handicaps', (req, res) => {
-  db.all('SELECT * FROM handicaps ORDER BY playerName', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
+app.get('/api/handicaps', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM handicaps ORDER BY playerName');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create or update handicap
-app.post('/api/handicaps', (req, res) => {
-  const { playerName, handicapIndex } = req.body;
-  db.run(
-    'INSERT OR REPLACE INTO handicaps (playerName, handicapIndex) VALUES (?, ?)',
-    [playerName, handicapIndex],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ id: this.lastID });
-    }
-  );
+app.post('/api/handicaps', async (req, res) => {
+  try {
+    const { playerName, handicapIndex } = req.body;
+    const result = await db.query(
+      'INSERT INTO handicaps (playerName, handicapIndex) VALUES ($1, $2) ON CONFLICT (playerName) DO UPDATE SET handicapIndex = $2 RETURNING id',
+      [playerName, handicapIndex]
+    );
+    res.json({ id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Start server

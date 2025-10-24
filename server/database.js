@@ -1,15 +1,16 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
 
-// Create database file in server directory
-const dbPath = path.join(__dirname, 'golf-league.db');
-const db = new sqlite3.Database(dbPath);
+// Use environment variable for database connection, fallback to local for development
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
 // Initialize database tables
-function initializeDatabase(callback) {
-  db.serialize(() => {
+async function initializeDatabase(callback) {
+  try {
     // Teams table
-    db.run(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS teams (
         id INTEGER PRIMARY KEY,
         name TEXT,
@@ -20,9 +21,9 @@ function initializeDatabase(callback) {
     `);
 
     // Courses table
-    db.run(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS courses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         par INTEGER NOT NULL,
         slope INTEGER NOT NULL,
@@ -31,9 +32,9 @@ function initializeDatabase(callback) {
     `);
 
     // Scores table
-    db.run(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS scores (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         teamId INTEGER NOT NULL,
         courseName TEXT NOT NULL,
         week INTEGER NOT NULL,
@@ -46,9 +47,9 @@ function initializeDatabase(callback) {
     `);
 
     // Handicaps table
-    db.run(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS handicaps (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         playerName TEXT NOT NULL UNIQUE,
         handicapIndex REAL NOT NULL
       )
@@ -56,44 +57,48 @@ function initializeDatabase(callback) {
 
     console.log('Database initialized successfully');
     if (callback) callback();
-  });
+  } catch (err) {
+    console.error('Database initialization error:', err);
+  }
 }
 
 // Import initial data from JSON file
-function importInitialData() {
-  const leagueData = require('../src/golf-league-data.json');
+async function importInitialData() {
+  try {
+    const leagueData = require('../golf-league-data.json');
 
-  // Check if teams already exist
-  db.get('SELECT COUNT(*) as count FROM teams', (err, row) => {
-    if (err) {
-      console.error('Error checking teams:', err);
-      return;
-    }
+    // Check if teams already exist
+    const result = await pool.query('SELECT COUNT(*) as count FROM teams');
+    const count = parseInt(result.rows[0].count);
 
-    if (row.count === 0) {
+    if (count === 0) {
       console.log('Importing initial data...');
 
       // Import teams
-      const teamStmt = db.prepare('INSERT INTO teams (id, name, player1, player2, paymentStatus) VALUES (?, ?, ?, ?, ?)');
-      leagueData.teams.forEach(team => {
-        teamStmt.run(team.id, team.name, team.player1, team.player2, team.paymentStatus);
-      });
-      teamStmt.finalize();
+      for (const team of leagueData.teams) {
+        await pool.query(
+          'INSERT INTO teams (id, name, player1, player2, paymentStatus) VALUES ($1, $2, $3, $4, $5)',
+          [team.id, team.name, team.player1, team.player2, team.paymentStatus]
+        );
+      }
 
       // Import courses
-      const courseStmt = db.prepare('INSERT INTO courses (name, par, slope, rating) VALUES (?, ?, ?, ?)');
-      leagueData.courses.forEach(course => {
-        courseStmt.run(course.name, course.par, course.slope, course.rating);
-      });
-      courseStmt.finalize();
+      for (const course of leagueData.courses) {
+        await pool.query(
+          'INSERT INTO courses (name, par, slope, rating) VALUES ($1, $2, $3, $4)',
+          [course.name, course.par, course.slope, course.rating]
+        );
+      }
 
       console.log('Initial data imported successfully');
     }
-  });
+  } catch (err) {
+    console.error('Error importing initial data:', err);
+  }
 }
 
 module.exports = {
-  db,
+  db: pool,
   initializeDatabase,
   importInitialData
 };
