@@ -11,10 +11,23 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Initialize database before starting server
-(async () => {
-  await initializeDatabase();
-  await importInitialData();
-})();
+async function startServer() {
+  try {
+    await initializeDatabase();
+    await importInitialData();
+
+    // Start server after database is ready
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`API endpoints available at http://localhost:${PORT}/api`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 // ========== TEAMS ENDPOINTS ==========
 
@@ -138,10 +151,4 @@ app.post('/api/handicaps', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`API endpoints available at http://localhost:${PORT}/api`);
 });
