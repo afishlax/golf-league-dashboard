@@ -33,13 +33,11 @@ function TeeTimeSchedule({ teams, schedule }) {
     }
   };
 
-  const getTeamForTimeSlot = (day, time) => {
-    const teeTime = teeTimes.find(t => t.day === day && t.time === time);
-    if (teeTime) {
-      const team = teams.find(t => t.id === Number(teeTime.teamId));
-      return team;
-    }
-    return null;
+  const getTeamsForTimeSlot = (day, time) => {
+    const bookedTeeTimes = teeTimes.filter(t => t.day === day && t.time === time);
+    return bookedTeeTimes.map(teeTime => {
+      return teams.find(t => t.id === Number(teeTime.teamId));
+    }).filter(team => team !== undefined);
   };
 
   const isTeamAlreadyBooked = () => {
@@ -60,9 +58,10 @@ function TeeTimeSchedule({ teams, schedule }) {
       return;
     }
 
-    // Check if slot is already taken
-    if (getTeamForTimeSlot(day, time)) {
-      setError('This time slot is already taken');
+    // Check if slot is full (2 teams maximum)
+    const bookedTeams = getTeamsForTimeSlot(day, time);
+    if (bookedTeams.length >= 2) {
+      setError('This time slot is full (2 teams maximum)');
       setTimeout(() => setError(''), 3000);
       return;
     }
@@ -162,21 +161,55 @@ function TeeTimeSchedule({ teams, schedule }) {
                         return <td key={day} className="bg-light"></td>;
                       }
 
-                      const bookedTeam = getTeamForTimeSlot(day, time);
+                      const bookedTeams = getTeamsForTimeSlot(day, time);
 
-                      if (bookedTeam) {
+                      if (bookedTeams.length === 2) {
+                        // Full - 2 teams booked
                         return (
-                          <td key={day} className="text-center bg-warning bg-opacity-25">
+                          <td key={day} className="text-center bg-danger bg-opacity-10">
                             <div className="p-2">
-                              <small>
-                                <strong>{bookedTeam.name}</strong><br />
-                                {bookedTeam.player1} & {bookedTeam.player2}
-                              </small>
+                              <Badge bg="danger" className="mb-1">FULL</Badge>
+                              {bookedTeams.map((team, idx) => (
+                                <div key={idx}>
+                                  <small>
+                                    <strong>{team.name}</strong><br />
+                                    <span className="text-muted">{team.player1} & {team.player2}</span>
+                                  </small>
+                                  {idx === 0 && <hr className="my-1" />}
+                                </div>
+                              ))}
                             </div>
                           </td>
                         );
                       }
 
+                      if (bookedTeams.length === 1) {
+                        // Partially full - 1 team booked, 1 spot left
+                        return (
+                          <td key={day} className="text-center bg-success bg-opacity-10">
+                            <div className="p-2">
+                              <Badge bg="success" className="mb-1">1 Spot Left</Badge>
+                              <div>
+                                <small>
+                                  <strong>{bookedTeams[0].name}</strong><br />
+                                  <span className="text-muted">{bookedTeams[0].player1} & {bookedTeams[0].player2}</span>
+                                </small>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline-success"
+                                className="mt-2"
+                                onClick={() => handleBookTeeTime(day, time)}
+                                disabled={!selectedTeamId || isTeamAlreadyBooked()}
+                              >
+                                Book 2nd Slot
+                              </Button>
+                            </div>
+                          </td>
+                        );
+                      }
+
+                      // Available - no teams booked
                       return (
                         <td key={day} className="text-center">
                           <Button
@@ -200,9 +233,11 @@ function TeeTimeSchedule({ teams, schedule }) {
             <strong>Instructions:</strong>
             <ul className="mb-0">
               <li>Select your team from the dropdown above</li>
+              <li>Each time slot can accommodate up to 2 teams</li>
               <li>Click "Book" on any available time slot to reserve it</li>
+              <li>Green slots have 1 spot remaining - you can book the 2nd slot</li>
+              <li>Red slots are full with 2 teams already booked</li>
               <li>Once booked, you cannot change your tee time - contact admin for changes</li>
-              <li>Yellow slots are already booked by other teams</li>
             </ul>
           </Alert>
         </Card.Body>
