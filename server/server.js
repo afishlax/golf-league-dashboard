@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const db = require('./database');
+const handicapCalc = require('./handicap-calculator');
 
 const app = express();
 const PORT = 5001;
@@ -114,6 +115,12 @@ app.post('/api/scores', async (req, res) => {
   try {
     const { teamId, courseName, week, date, player1Score, player2Score, teamTotal } = req.body;
     const id = await db.createScore({ teamId, courseName, week, date, player1Score, player2Score, teamTotal });
+
+    // Auto-calculate handicaps after adding score (if week >= 4)
+    if (week >= 4) {
+      await recalculateAllHandicaps();
+    }
+
     res.json({ id });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -142,3 +149,28 @@ app.post('/api/handicaps', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Recalculate all handicaps based on scores
+app.post('/api/handicaps/recalculate', async (req, res) => {
+  try {
+    await recalculateAllHandicaps();
+    const handicaps = await db.getAllHandicaps();
+    res.json({ message: 'Handicaps recalculated successfully', handicaps });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Helper function to recalculate all handicaps
+async function recalculateAllHandicaps() {
+  const teams = await db.getAllTeams();
+  const scores = await db.getAllScores();
+  const courses = await db.getAllCourses();
+
+  const handicaps = handicapCalc.calculateHandicaps(teams, scores, courses);
+
+  // Update all handicaps in the database
+  for (const [playerName, handicapIndex] of Object.entries(handicaps)) {
+    await db.createOrUpdateHandicap({ playerName, handicapIndex });
+  }
+}
