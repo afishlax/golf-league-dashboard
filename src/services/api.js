@@ -85,3 +85,11 @@ export const createOrUpdateHandicap = async (handicapData) => {
   if (!response.ok) throw new Error('Failed to create/update handicap');
   return response.json();
 };
+
+// ========== SCHEDULE API ==========
+
+export const fetchSchedule = async () => {
+  const response = await fetch(`${API_BASE_URL}/schedule`);
+  if (!response.ok) throw new Error('Failed to fetch schedule');
+  return response.json();
+};

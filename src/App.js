@@ -8,6 +8,7 @@ import Teams from './components/Teams';
 import Scorecard from './components/Scorecard';
 import Courses from './components/Courses';
 import Leaderboard from './components/Leaderboard';
+import RoundHistory from './components/RoundHistory';
 import Rules from './components/Rules';
 import Admin from './components/Admin';
 import AdminLogin from './components/AdminLogin';
@@ -17,6 +18,7 @@ function App() {
   const [courses, setCourses] = useState([]);
   const [scores, setScores] = useState([]);
   const [handicaps, setHandicaps] = useState([]);
+  const [schedule, setSchedule] = useState([]);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,17 +33,19 @@ function App() {
       setLoading(true);
       setError(null);
 
-      const [teamsData, coursesData, scoresData, handicapsData] = await Promise.all([
+      const [teamsData, coursesData, scoresData, handicapsData, scheduleData] = await Promise.all([
         api.fetchTeams(),
         api.fetchCourses(),
         api.fetchScores(),
         api.fetchHandicaps(),
+        api.fetchSchedule(),
       ]);
 
       setTeams(teamsData);
       setCourses(coursesData);
       setScores(scoresData);
       setHandicaps(handicapsData);
+      setSchedule(scheduleData);
     } catch (err) {
       console.error('Error loading data:', err);
       setError('Failed to load data from server. Make sure the backend is running.');
@@ -124,6 +128,9 @@ function App() {
               <Nav.Link eventKey="leaderboard">Leaderboard</Nav.Link>
             </Nav.Item>
             <Nav.Item>
+              <Nav.Link eventKey="roundhistory">Round History</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link eventKey="rules">Rules</Nav.Link>
             </Nav.Item>
             <Nav.Item>
@@ -140,6 +147,7 @@ function App() {
                 teams={teams}
                 courses={courses}
                 scores={scores}
+                schedule={schedule}
                 onAddScore={addScore}
               />
             </Tab.Pane>
@@ -148,6 +156,9 @@ function App() {
             </Tab.Pane>
             <Tab.Pane eventKey="leaderboard">
               <Leaderboard teams={teams} scores={scores} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="roundhistory">
+              <RoundHistory teams={teams} scores={scores} schedule={schedule} />
             </Tab.Pane>
             <Tab.Pane eventKey="rules">
               <Rules />

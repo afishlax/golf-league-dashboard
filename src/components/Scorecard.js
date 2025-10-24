@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Table, Row, Col, Alert } from 'react-bootstrap';
 
-function Scorecard({ teams, courses, scores, onAddScore }) {
+function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
   const [formData, setFormData] = useState({
     teamId: teams.length > 0 ? teams[0].id : '',
     courseName: courses.length > 0 ? courses[0].name : '',
     week: 1,
     date: new Date().toISOString().split('T')[0],
-    player1Score: 72,
-    player2Score: 72
+    nine: 'F',
+    player1Score: 36,
+    player2Score: 36
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -21,9 +22,10 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
       courseName: formData.courseName,
       week: parseInt(formData.week),
       date: formData.date,
+      nine: formData.nine,
       player1Score: parseInt(formData.player1Score),
       player2Score: parseInt(formData.player2Score),
-      teamScore: parseInt(formData.player1Score) + parseInt(formData.player2Score)
+      teamTotal: parseInt(formData.player1Score) + parseInt(formData.player2Score)
     };
 
     onAddScore(newScore);
@@ -32,9 +34,26 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // If week is changed, auto-populate course and nine from schedule
+    if (name === 'week' && schedule && schedule.length > 0) {
+      const scheduleItem = schedule.find(s => s.week === parseInt(value));
+      if (scheduleItem) {
+        setFormData({
+          ...formData,
+          week: value,
+          courseName: scheduleItem.courseName,
+          nine: scheduleItem.nine,
+          date: scheduleItem.date
+        });
+        return;
+      }
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -96,7 +115,7 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
                 </Row>
 
                 <Row>
-                  <Col md={6}>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Week</Form.Label>
                       <Form.Control
@@ -105,12 +124,29 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
                         value={formData.week}
                         onChange={handleChange}
                         min="1"
-                        max="52"
+                        max="16"
                         required
                       />
+                      <Form.Text className="text-muted">
+                        Auto-populates course & nine
+                      </Form.Text>
                     </Form.Group>
                   </Col>
-                  <Col md={6}>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Nine</Form.Label>
+                      <Form.Select
+                        name="nine"
+                        value={formData.nine}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="F">Front 9</option>
+                        <option value="B">Back 9</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Date</Form.Label>
                       <Form.Control
@@ -188,6 +224,7 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
                         <th>Week</th>
                         <th>Team</th>
                         <th>Course</th>
+                        <th>Nine</th>
                         <th>Score</th>
                         <th>Date</th>
                       </tr>
@@ -198,7 +235,12 @@ function Scorecard({ teams, courses, scores, onAddScore }) {
                           <td>{score.week}</td>
                           <td>{getTeamName(score.teamId)}</td>
                           <td>{score.courseName}</td>
-                          <td><strong>{score.teamScore}</strong></td>
+                          <td>
+                            <span className="badge bg-secondary">
+                              {score.nine === 'F' ? 'Front' : 'Back'}
+                            </span>
+                          </td>
+                          <td><strong>{score.teamTotal || score.teamScore}</strong></td>
                           <td>{score.date}</td>
                         </tr>
                       ))}

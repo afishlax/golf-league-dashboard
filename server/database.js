@@ -9,6 +9,7 @@ const TEAMS_FILE = path.join(DATA_DIR, 'teams.csv');
 const COURSES_FILE = path.join(DATA_DIR, 'courses.csv');
 const SCORES_FILE = path.join(DATA_DIR, 'scores.csv');
 const HANDICAPS_FILE = path.join(DATA_DIR, 'handicaps.csv');
+const SCHEDULE_FILE = path.join(DATA_DIR, 'schedule.csv');
 
 // File locking mechanism to prevent concurrent write issues
 let writeLock = Promise.resolve();
@@ -143,12 +144,13 @@ async function createScore(scoreData) {
     courseName: scoreData.courseName,
     week: scoreData.week,
     date: scoreData.date,
+    nine: scoreData.nine || '',
     player1Score: scoreData.player1Score,
     player2Score: scoreData.player2Score,
     teamTotal: scoreData.teamTotal
   };
   scores.push(newScore);
-  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'player1Score', 'player2Score', 'teamTotal']);
+  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
   return newId;
 }
 
@@ -175,6 +177,13 @@ async function createOrUpdateHandicap(handicapData) {
   await writeCSV(HANDICAPS_FILE, handicaps, ['playerName', 'handicapIndex']);
 }
 
+// ========== SCHEDULE OPERATIONS ==========
+
+async function getAllSchedule() {
+  const schedule = await readCSV(SCHEDULE_FILE);
+  return schedule.sort((a, b) => a.week - b.week);
+}
+
 module.exports = {
   initializeDatabase,
   getAllTeams,
@@ -186,5 +195,6 @@ module.exports = {
   getAllScores,
   createScore,
   getAllHandicaps,
-  createOrUpdateHandicap
+  createOrUpdateHandicap,
+  getAllSchedule
 };

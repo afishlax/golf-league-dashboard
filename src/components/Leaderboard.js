@@ -5,10 +5,13 @@ function Leaderboard({ teams, scores }) {
   const calculateLeaderboard = () => {
     const teamScores = {};
 
-    // Initialize all teams
+    // Initialize all teams with player names
     teams.forEach(team => {
       teamScores[team.id] = {
-        teamName: team.name,
+        teamId: team.id,
+        teamName: team.name || `Team ${team.id}`,
+        player1: team.player1,
+        player2: team.player2,
         totalPoints: 0,
         weeksPlayed: 0
       };
@@ -17,7 +20,7 @@ function Leaderboard({ teams, scores }) {
     // Calculate scores
     scores.forEach(score => {
       if (teamScores[score.teamId]) {
-        teamScores[score.teamId].totalPoints += score.teamScore;
+        teamScores[score.teamId].totalPoints += score.teamTotal || 0;
         teamScores[score.teamId].weeksPlayed += 1;
       }
     });
@@ -26,6 +29,11 @@ function Leaderboard({ teams, scores }) {
     return Object.values(teamScores)
       .sort((a, b) => {
         // Sort by total points (ascending - lower is better in golf)
+        // Teams with no scores go to the bottom
+        if (a.weeksPlayed === 0 && b.weeksPlayed === 0) return 0;
+        if (a.weeksPlayed === 0) return 1;
+        if (b.weeksPlayed === 0) return -1;
+
         if (a.totalPoints !== b.totalPoints) {
           return a.totalPoints - b.totalPoints;
         }
@@ -80,10 +88,10 @@ function Leaderboard({ teams, scores }) {
           <Card>
             <Card.Header as="h5">League Standings</Card.Header>
             <Card.Body>
-              {leaderboard.filter(team => team.weeksPlayed > 0).length === 0 ? (
+              {leaderboard.length === 0 ? (
                 <div className="text-center text-muted p-5">
-                  <h4>No scores recorded yet</h4>
-                  <p>The leaderboard will appear once teams start submitting scores.</p>
+                  <h4>No teams registered yet</h4>
+                  <p>Teams will appear here once registered.</p>
                 </div>
               ) : (
                 <Table striped bordered hover responsive>
@@ -91,40 +99,42 @@ function Leaderboard({ teams, scores }) {
                     <tr>
                       <th>Rank</th>
                       <th>Team Name</th>
+                      <th>Players</th>
                       <th>Total Strokes</th>
                       <th>Weeks Played</th>
                       <th>Avg per Week</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard
-                      .filter(team => team.weeksPlayed > 0)
-                      .map((team, index) => (
-                        <tr key={team.teamName}>
-                          <td>
-                            {index === 0 && (
-                              <Badge bg="warning" className="me-2">1st</Badge>
-                            )}
-                            {index === 1 && (
-                              <Badge bg="secondary" className="me-2">2nd</Badge>
-                            )}
-                            {index === 2 && (
-                              <Badge bg="danger" className="me-2">3rd</Badge>
-                            )}
-                            {index + 1}
-                          </td>
-                          <td>
-                            <strong>{team.teamName}</strong>
-                          </td>
-                          <td>{team.totalPoints}</td>
-                          <td>{team.weeksPlayed}</td>
-                          <td>
-                            {team.weeksPlayed > 0
-                              ? (team.totalPoints / team.weeksPlayed).toFixed(1)
-                              : '-'}
-                          </td>
-                        </tr>
-                      ))}
+                    {leaderboard.map((team, index) => (
+                      <tr key={team.teamId}>
+                        <td>
+                          {team.weeksPlayed > 0 && index === 0 && (
+                            <Badge bg="warning" className="me-2">1st</Badge>
+                          )}
+                          {team.weeksPlayed > 0 && index === 1 && (
+                            <Badge bg="secondary" className="me-2">2nd</Badge>
+                          )}
+                          {team.weeksPlayed > 0 && index === 2 && (
+                            <Badge bg="danger" className="me-2">3rd</Badge>
+                          )}
+                          {team.weeksPlayed > 0 ? index + 1 : '-'}
+                        </td>
+                        <td>
+                          <strong>{team.teamName}</strong>
+                        </td>
+                        <td>
+                          {team.player1} & {team.player2}
+                        </td>
+                        <td>{team.weeksPlayed > 0 ? team.totalPoints : '-'}</td>
+                        <td>{team.weeksPlayed}</td>
+                        <td>
+                          {team.weeksPlayed > 0
+                            ? (team.totalPoints / team.weeksPlayed).toFixed(1)
+                            : '-'}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               )}

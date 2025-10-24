@@ -98,6 +98,18 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+// ========== SCHEDULE ENDPOINTS ==========
+
+// Get all schedule
+app.get('/api/schedule', async (req, res) => {
+  try {
+    const schedule = await db.getAllSchedule();
+    res.json(schedule);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ========== SCORES ENDPOINTS ==========
 
 // Get all scores
@@ -113,8 +125,8 @@ app.get('/api/scores', async (req, res) => {
 // Create new score
 app.post('/api/scores', async (req, res) => {
   try {
-    const { teamId, courseName, week, date, player1Score, player2Score, teamTotal } = req.body;
-    const id = await db.createScore({ teamId, courseName, week, date, player1Score, player2Score, teamTotal });
+    const { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal } = req.body;
+    const id = await db.createScore({ teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal });
 
     // Auto-calculate handicaps after adding score (if week >= 4)
     if (week >= 4) {
