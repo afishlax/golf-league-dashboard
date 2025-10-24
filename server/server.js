@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { db, initializeDatabase, importInitialData } = require('./database');
+const db = require('./database');
 
 const app = express();
 const PORT = 5001;
@@ -13,8 +13,7 @@ app.use(bodyParser.json());
 // Initialize database before starting server
 async function startServer() {
   try {
-    await initializeDatabase();
-    await importInitialData();
+    await db.initializeDatabase();
 
     // Start server after database is ready
     app.listen(PORT, () => {
@@ -34,8 +33,8 @@ startServer();
 // Get all teams
 app.get('/api/teams', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM teams ORDER BY id');
-    res.json(result.rows);
+    const teams = await db.getAllTeams();
+    res.json(teams);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -44,8 +43,11 @@ app.get('/api/teams', async (req, res) => {
 // Get single team
 app.get('/api/teams/:id', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM teams WHERE id = $1', [req.params.id]);
-    res.json(result.rows[0]);
+    const team = await db.getTeamById(req.params.id);
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+    res.json(team);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -55,11 +57,8 @@ app.get('/api/teams/:id', async (req, res) => {
 app.post('/api/teams', async (req, res) => {
   try {
     const { name, player1, player2, paymentStatus } = req.body;
-    const result = await db.query(
-      'INSERT INTO teams (name, player1, player2, paymentStatus) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, player1, player2, paymentStatus || 'Not Paid']
-    );
-    res.json({ id: result.rows[0].id });
+    const id = await db.createTeam({ name, player1, player2, paymentStatus });
+    res.json({ id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -69,10 +68,7 @@ app.post('/api/teams', async (req, res) => {
 app.put('/api/teams/:id', async (req, res) => {
   try {
     const { name, player1, player2, paymentStatus } = req.body;
-    await db.query(
-      'UPDATE teams SET name = $1, player1 = $2, player2 = $3, paymentStatus = $4 WHERE id = $5',
-      [name, player1, player2, paymentStatus, req.params.id]
-    );
+    await db.updateTeam(req.params.id, { name, player1, player2, paymentStatus });
     res.json({ message: 'Team updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -82,7 +78,7 @@ app.put('/api/teams/:id', async (req, res) => {
 // Delete team
 app.delete('/api/teams/:id', async (req, res) => {
   try {
-    await db.query('DELETE FROM teams WHERE id = $1', [req.params.id]);
+    await db.deleteTeam(req.params.id);
     res.json({ message: 'Team deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -94,8 +90,8 @@ app.delete('/api/teams/:id', async (req, res) => {
 // Get all courses
 app.get('/api/courses', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM courses');
-    res.json(result.rows);
+    const courses = await db.getAllCourses();
+    res.json(courses);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -106,8 +102,8 @@ app.get('/api/courses', async (req, res) => {
 // Get all scores
 app.get('/api/scores', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM scores ORDER BY date DESC');
-    res.json(result.rows);
+    const scores = await db.getAllScores();
+    res.json(scores);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -117,11 +113,8 @@ app.get('/api/scores', async (req, res) => {
 app.post('/api/scores', async (req, res) => {
   try {
     const { teamId, courseName, week, date, player1Score, player2Score, teamTotal } = req.body;
-    const result = await db.query(
-      'INSERT INTO scores (teamId, courseName, week, date, player1Score, player2Score, teamTotal) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      [teamId, courseName, week, date, player1Score, player2Score, teamTotal]
-    );
-    res.json({ id: result.rows[0].id });
+    const id = await db.createScore({ teamId, courseName, week, date, player1Score, player2Score, teamTotal });
+    res.json({ id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -132,8 +125,8 @@ app.post('/api/scores', async (req, res) => {
 // Get all handicaps
 app.get('/api/handicaps', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM handicaps ORDER BY playerName');
-    res.json(result.rows);
+    const handicaps = await db.getAllHandicaps();
+    res.json(handicaps);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -143,11 +136,8 @@ app.get('/api/handicaps', async (req, res) => {
 app.post('/api/handicaps', async (req, res) => {
   try {
     const { playerName, handicapIndex } = req.body;
-    const result = await db.query(
-      'INSERT INTO handicaps (playerName, handicapIndex) VALUES ($1, $2) ON CONFLICT (playerName) DO UPDATE SET handicapIndex = $2 RETURNING id',
-      [playerName, handicapIndex]
-    );
-    res.json({ id: result.rows[0].id });
+    await db.createOrUpdateHandicap({ playerName, handicapIndex });
+    res.json({ message: 'Handicap saved successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
