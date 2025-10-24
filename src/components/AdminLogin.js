@@ -6,7 +6,7 @@ function AdminLogin({ onLogin }) {
   const [error, setError] = useState('');
 
   // Admin password
-  const ADMIN_PASSWORD = 'littleDickMuncherChandy45@';
+  const ADMIN_PASSWORD = 'MC@dba.2025';
 
   const handleSubmit = (e) => {
     e.preventDefault();
