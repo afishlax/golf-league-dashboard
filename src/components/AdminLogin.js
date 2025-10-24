@@ -5,8 +5,8 @@ function AdminLogin({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Default password - you can change this
-  const ADMIN_PASSWORD = 'golf2026';
+  // Admin password
+  const ADMIN_PASSWORD = 'littleDickMuncherChandy45@';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,9 +35,6 @@ function AdminLogin({ onLogin }) {
                 placeholder="Enter admin password"
                 autoFocus
               />
-              <Form.Text className="text-muted">
-                Default password: golf2026
-              </Form.Text>
             </Form.Group>
             <Button variant="primary" type="submit" className="w-100">
               Login
