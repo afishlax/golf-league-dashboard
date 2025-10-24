@@ -3,9 +3,10 @@ const { Pool } = require('pg');
 // Create connection pool
 // Use explicit config to avoid IPv6 resolution issues
 // Using IPv4 address of aws-0-us-east-1.pooler.supabase.com (44.216.29.125)
+// Port 5432 = session mode (supports all features), Port 6543 = transaction mode (limited)
 const pool = new Pool({
   host: process.env.SUPABASE_HOST || '44.216.29.125',  // IPv4 address of pooler
-  port: process.env.SUPABASE_PORT || 6543,
+  port: process.env.SUPABASE_PORT || 5432,  // Use session mode
   database: 'postgres',
   user: process.env.SUPABASE_USER || 'postgres.dxddqhodsngiilgsxbpr',
   password: process.env.SUPABASE_PASSWORD || 'MC@dba.2025',
