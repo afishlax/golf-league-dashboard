@@ -1,15 +1,38 @@
 const { Pool } = require('pg');
+const net = require('net');
+
+// Custom lookup function that forces IPv4 resolution
+function lookup(hostname, options, callback) {
+  // Force IPv4 by setting family to 4
+  const dns = require('dns');
+  dns.lookup(hostname, { family: 4 }, (err, address, family) => {
+    if (err) {
+      console.error('DNS lookup failed:', err);
+      return callback(err);
+    }
+    console.log(`Resolved ${hostname} to IPv4: ${address}`);
+    callback(null, address, family);
+  });
+}
+
+// Override net.connect to use custom lookup
+const originalConnect = net.connect;
+net.connect = function(...args) {
+  const options = args[0];
+  if (typeof options === 'object' && !options.lookup) {
+    options.lookup = lookup;
+  }
+  return originalConnect.apply(this, args);
+};
 
 // Create connection pool
-// Use explicit config to avoid IPv6 resolution issues
-// Using IPv4 address of aws-0-us-east-1.pooler.supabase.com (44.216.29.125)
-// Port 5432 = session mode (supports all features), Port 6543 = transaction mode (limited)
+// Using connection pooler hostname with forced IPv4 resolution
 const pool = new Pool({
-  host: process.env.SUPABASE_HOST || '44.216.29.125',  // IPv4 address of pooler
-  port: process.env.SUPABASE_PORT || 5432,  // Use session mode
+  host: 'aws-0-us-east-1.pooler.supabase.com',
+  port: 5432,
   database: 'postgres',
-  user: process.env.SUPABASE_USER || 'postgres.dxddqhodsngiilgsxbpr',
-  password: process.env.SUPABASE_PASSWORD || 'MC@dba.2025',
+  user: 'postgres.dxddqhodsngiilgsxbpr',
+  password: 'MC@dba.2025',
   ssl: {
     rejectUnauthorized: false
   },
