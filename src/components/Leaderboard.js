@@ -1,43 +1,72 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Table, Row, Col, Badge } from 'react-bootstrap';
+import * as api from '../services/api';
 
 function Leaderboard({ teams, scores }) {
+  const [handicaps, setHandicaps] = useState([]);
+
+  useEffect(() => {
+    loadHandicaps();
+  }, [scores]); // Reload when scores change
+
+  const loadHandicaps = async () => {
+    try {
+      const data = await api.fetchHandicaps();
+      setHandicaps(data);
+    } catch (err) {
+      console.error('Error loading handicaps:', err);
+    }
+  };
+
   const calculateLeaderboard = () => {
     const teamScores = {};
 
     // Initialize all teams with player names
     teams.forEach(team => {
+      const teamHandicap = handicaps.find(h => h.teamId === team.id);
+
       teamScores[team.id] = {
         teamId: team.id,
         teamName: team.name || `Team ${team.id}`,
         player1: team.player1,
         player2: team.player2,
-        totalPoints: 0,
-        weeksPlayed: 0
+        rawScore: 0,
+        weeksPlayed: 0,
+        handicapIndex: teamHandicap ? teamHandicap.handicapIndex : 0
       };
     });
 
-    // Calculate scores
+    // Calculate raw scores
     scores.forEach(score => {
       if (teamScores[score.teamId]) {
-        teamScores[score.teamId].totalPoints += score.teamScore || 0;
+        teamScores[score.teamId].rawScore += score.teamScore || 0;
         teamScores[score.teamId].weeksPlayed += 1;
       }
     });
 
-    // Convert to array and sort
+    // Calculate adjusted scores (raw score - handicap)
+    Object.values(teamScores).forEach(team => {
+      if (team.weeksPlayed > 0) {
+        // Handicap applies once per round played
+        team.adjustedScore = team.rawScore - (team.handicapIndex * team.weeksPlayed);
+      } else {
+        team.adjustedScore = 0;
+      }
+    });
+
+    // Convert to array and sort by ADJUSTED score (lower is better)
     return Object.values(teamScores)
       .sort((a, b) => {
-        // Sort by total points (ascending - lower is better in golf)
         // Teams with no scores go to the bottom
         if (a.weeksPlayed === 0 && b.weeksPlayed === 0) return 0;
         if (a.weeksPlayed === 0) return 1;
         if (b.weeksPlayed === 0) return -1;
 
-        if (a.totalPoints !== b.totalPoints) {
-          return a.totalPoints - b.totalPoints;
+        // Sort by adjusted score
+        if (a.adjustedScore !== b.adjustedScore) {
+          return a.adjustedScore - b.adjustedScore;
         }
-        // If tied, sort by weeks played (more weeks = more experience)
+        // If tied, sort by weeks played
         return b.weeksPlayed - a.weeksPlayed;
       });
   };
@@ -58,7 +87,10 @@ function Leaderboard({ teams, scores }) {
               <Card.Title>🏆 Leader</Card.Title>
               <h2>{leader ? leader.teamName : 'TBD'}</h2>
               {leader && (
-                <p className="mb-0">Total: {leader.totalPoints} strokes</p>
+                <>
+                  <p className="mb-0">Adjusted: {Math.round(leader.adjustedScore)} strokes</p>
+                  <small>(Raw: {leader.rawScore}, HDCP: {leader.handicapIndex})</small>
+                </>
               )}
             </Card.Body>
           </Card>
@@ -100,9 +132,10 @@ function Leaderboard({ teams, scores }) {
                       <th>Rank</th>
                       <th>Team Name</th>
                       <th>Players</th>
-                      <th>Total Strokes</th>
+                      <th>Raw Score</th>
+                      <th>Handicap</th>
+                      <th>Adjusted Score</th>
                       <th>Weeks Played</th>
-                      <th>Avg per Week</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -126,13 +159,14 @@ function Leaderboard({ teams, scores }) {
                         <td>
                           {team.player1} & {team.player2}
                         </td>
-                        <td>{team.weeksPlayed > 0 ? team.totalPoints : '-'}</td>
-                        <td>{team.weeksPlayed}</td>
+                        <td>{team.weeksPlayed > 0 ? team.rawScore : '-'}</td>
+                        <td>{team.weeksPlayed > 0 ? team.handicapIndex.toFixed(1) : '-'}</td>
                         <td>
-                          {team.weeksPlayed > 0
-                            ? (team.totalPoints / team.weeksPlayed).toFixed(1)
-                            : '-'}
+                          {team.weeksPlayed > 0 ? (
+                            <strong>{Math.round(team.adjustedScore)}</strong>
+                          ) : '-'}
                         </td>
+                        <td>{team.weeksPlayed}</td>
                       </tr>
                     ))}
                   </tbody>

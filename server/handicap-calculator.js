@@ -1,11 +1,11 @@
-// Handicap Calculator for 2-Man Scramble - 4-week rolling average
+// Handicap Calculator for 2-Man Scramble - Full Season Average
 //
 // In a 2-man scramble format, each team has ONE score and ONE handicap
-// Handicap is calculated based on the team's combined performance
+// Handicap is calculated based on the team's combined performance over the entire season
 
 /**
- * Calculate handicaps for all teams based on their last 4 weeks of scores
- * Uses simplified handicap formula: Average differential over last 4 weeks
+ * Calculate handicaps for all teams based on ALL their scores for the season
+ * Uses simplified handicap formula: Average differential over all rounds
  * Differential = (Team Score - Course Rating) * 113 / Slope
  */
 
@@ -16,13 +16,13 @@ async function calculateHandicaps(teams, scores, courses) {
   for (const team of teams) {
     const teamScores = getTeamScores(team.id, scores, courses);
 
-    // Need at least 4 scores to calculate handicap
-    if (teamScores.length >= 4) {
-      // Get last 4 scores
-      const recentScores = teamScores.slice(-4);
+    // Need at least 1 score to calculate handicap
+    if (teamScores.length >= 1) {
+      // Use ALL scores for the season
+      const allScores = teamScores;
 
-      // Calculate average differential
-      const avgDifferential = recentScores.reduce((sum, score) => sum + score.differential, 0) / 4;
+      // Calculate average differential across all rounds
+      const avgDifferential = allScores.reduce((sum, score) => sum + score.differential, 0) / allScores.length;
 
       // Handicap Index = average differential * 0.96 (standard USGA multiplier)
       const handicapIndex = Math.round(avgDifferential * 0.96 * 10) / 10;
@@ -30,7 +30,8 @@ async function calculateHandicaps(teams, scores, courses) {
       handicaps[team.id] = {
         teamId: team.id,
         teamName: team.name || `Team ${team.id}`,
-        handicapIndex: handicapIndex
+        handicapIndex: handicapIndex,
+        roundsPlayed: allScores.length
       };
     }
   }

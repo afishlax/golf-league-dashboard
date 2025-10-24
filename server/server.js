@@ -128,10 +128,8 @@ app.post('/api/scores', async (req, res) => {
     const { teamId, courseName, week, date, nine, teamScore } = req.body;
     const id = await db.createScore({ teamId, courseName, week, date, nine, teamScore });
 
-    // Auto-calculate handicaps after adding score (if week >= 4)
-    if (week >= 4) {
-      await recalculateAllHandicaps();
-    }
+    // Auto-calculate handicaps after adding any score
+    await recalculateAllHandicaps();
 
     res.json({ id });
   } catch (err) {
@@ -146,9 +144,7 @@ app.put('/api/scores/:id', async (req, res) => {
     await db.updateScore(req.params.id, { teamId, courseName, week, date, nine, teamScore });
 
     // Recalculate handicaps after updating score
-    if (week >= 4) {
-      await recalculateAllHandicaps();
-    }
+    await recalculateAllHandicaps();
 
     res.json({ message: 'Score updated successfully' });
   } catch (err) {
