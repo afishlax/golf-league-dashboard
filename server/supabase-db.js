@@ -1,15 +1,14 @@
 const { Pool } = require('pg');
-const dns = require('dns');
-
-// Force IPv4
-dns.setDefaultResultOrder('ipv4first');
 
 // Create connection pool
-// Use DATABASE_URL from environment variable, or use connection pooler for IPv4 support
-// Supabase connection pooler supports IPv4 (direct connection is IPv6 only)
-// Password MC@dba.2025 needs @ symbols encoded as %40 -> MC%40dba.2025
+// Use explicit config to avoid IPv6 resolution issues
+// Using IPv4 address of aws-0-us-east-1.pooler.supabase.com (44.216.29.125)
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres.dxddqhodsngiilgsxbpr:MC%40dba.2025@aws-0-us-east-1.pooler.supabase.com:6543/postgres',
+  host: process.env.SUPABASE_HOST || '44.216.29.125',  // IPv4 address of pooler
+  port: process.env.SUPABASE_PORT || 6543,
+  database: 'postgres',
+  user: process.env.SUPABASE_USER || 'postgres.dxddqhodsngiilgsxbpr',
+  password: process.env.SUPABASE_PASSWORD || 'MC@dba.2025',
   ssl: {
     rejectUnauthorized: false
   },
