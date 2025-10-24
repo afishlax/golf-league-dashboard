@@ -146,12 +146,10 @@ async function createScore(scoreData) {
     week: scoreData.week,
     date: scoreData.date,
     nine: scoreData.nine || '',
-    player1Score: scoreData.player1Score,
-    player2Score: scoreData.player2Score,
-    teamTotal: scoreData.teamTotal
+    teamScore: scoreData.teamScore
   };
   scores.push(newScore);
-  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
+  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'teamScore']);
   return newId;
 }
 
@@ -159,23 +157,25 @@ async function createScore(scoreData) {
 
 async function getAllHandicaps() {
   const handicaps = await readCSV(HANDICAPS_FILE);
-  return handicaps.sort((a, b) => a.playerName.localeCompare(b.playerName));
+  return handicaps.sort((a, b) => a.teamId - b.teamId);
 }
 
 async function createOrUpdateHandicap(handicapData) {
   const handicaps = await readCSV(HANDICAPS_FILE);
-  const index = handicaps.findIndex(h => h.playerName === handicapData.playerName);
+  const index = handicaps.findIndex(h => h.teamId === Number(handicapData.teamId));
 
   if (index >= 0) {
     handicaps[index].handicapIndex = handicapData.handicapIndex;
+    handicaps[index].teamName = handicapData.teamName;
   } else {
     handicaps.push({
-      playerName: handicapData.playerName,
+      teamId: handicapData.teamId,
+      teamName: handicapData.teamName,
       handicapIndex: handicapData.handicapIndex
     });
   }
 
-  await writeCSV(HANDICAPS_FILE, handicaps, ['playerName', 'handicapIndex']);
+  await writeCSV(HANDICAPS_FILE, handicaps, ['teamId', 'teamName', 'handicapIndex']);
 }
 
 // ========== SCHEDULE OPERATIONS ==========
@@ -230,17 +230,15 @@ async function updateScore(id, scoreData) {
     week: scoreData.week,
     date: scoreData.date,
     nine: scoreData.nine || '',
-    player1Score: scoreData.player1Score,
-    player2Score: scoreData.player2Score,
-    teamTotal: scoreData.teamTotal
+    teamScore: scoreData.teamScore
   };
-  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
+  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'teamScore']);
 }
 
 async function deleteScore(id) {
   const scores = await readCSV(SCORES_FILE);
   const filtered = scores.filter(s => s.id !== Number(id));
-  await writeCSV(SCORES_FILE, filtered, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
+  await writeCSV(SCORES_FILE, filtered, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'teamScore']);
 }
 
 async function updateCourse(name, courseData) {

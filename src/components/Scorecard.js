@@ -8,8 +8,7 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
     week: 1,
     date: new Date().toISOString().split('T')[0],
     nine: 'F',
-    player1Score: 36,
-    player2Score: 36
+    teamScore: 36
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -23,9 +22,7 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
       week: parseInt(formData.week),
       date: formData.date,
       nine: formData.nine,
-      player1Score: parseInt(formData.player1Score),
-      player2Score: parseInt(formData.player2Score),
-      teamTotal: parseInt(formData.player1Score) + parseInt(formData.player2Score)
+      teamScore: parseInt(formData.teamScore)
     };
 
     onAddScore(newScore);
@@ -56,8 +53,6 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
       [name]: value
     });
   };
-
-  const teamTotal = parseInt(formData.player1Score || 0) + parseInt(formData.player2Score || 0);
 
   // Get team name for displaying in score history
   const getTeamName = (teamId) => {
@@ -161,43 +156,22 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
                 </Row>
 
                 <Row>
-                  <Col md={4}>
+                  <Col md={12}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Player 1 Score</Form.Label>
+                      <Form.Label>Team Score (2-Man Scramble)</Form.Label>
                       <Form.Control
                         type="number"
-                        name="player1Score"
-                        value={formData.player1Score}
+                        name="teamScore"
+                        value={formData.teamScore}
                         onChange={handleChange}
-                        min="50"
-                        max="150"
+                        min="25"
+                        max="100"
                         required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Player 2 Score</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="player2Score"
-                        value={formData.player2Score}
-                        onChange={handleChange}
-                        min="50"
-                        max="150"
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Team Total</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={teamTotal}
-                        readOnly
                         style={{ fontWeight: 'bold', fontSize: '1.2em' }}
                       />
+                      <Form.Text className="text-muted">
+                        Enter the combined team score for 9 holes
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                 </Row>
@@ -240,7 +214,7 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
                               {score.nine === 'F' ? 'Front' : 'Back'}
                             </span>
                           </td>
-                          <td><strong>{score.teamTotal || score.teamScore}</strong></td>
+                          <td><strong>{score.teamScore}</strong></td>
                           <td>{score.date}</td>
                         </tr>
                       ))}

@@ -23,9 +23,7 @@ function RoundHistory({ teams, scores, schedule }) {
         teamScoreMap[score.teamId].scoresByWeek[score.week] = {
           courseName: score.courseName,
           nine: score.nine,
-          player1Score: score.player1Score,
-          player2Score: score.player2Score,
-          teamTotal: score.teamTotal,
+          teamScore: score.teamScore,
           date: score.date
         };
       }
@@ -86,12 +84,7 @@ function RoundHistory({ teams, scores, schedule }) {
                         return (
                           <td key={week} className="text-center">
                             {weekScore ? (
-                              <div>
-                                <strong className="d-block">{weekScore.teamTotal}</strong>
-                                <small className="text-muted">
-                                  ({weekScore.player1Score} / {weekScore.player2Score})
-                                </small>
-                              </div>
+                              <strong className="d-block">{weekScore.teamScore}</strong>
                             ) : (
                               <span className="text-muted">-</span>
                             )}
@@ -107,7 +100,7 @@ function RoundHistory({ teams, scores, schedule }) {
 
           <div className="mt-3">
             <small className="text-muted">
-              <strong>Note:</strong> Team Total shown with individual scores in parentheses (Player 1 / Player 2)
+              <strong>Note:</strong> Team scores shown are for 2-man scramble format (9 holes)
             </small>
           </div>
         </Card.Body>

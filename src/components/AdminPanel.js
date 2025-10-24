@@ -280,9 +280,7 @@ function AdminPanel({ teams, setTeams, courses, setCourses, scores, setScores, s
                     <th>Team</th>
                     <th>Course</th>
                     <th>Nine</th>
-                    <th>P1 Score</th>
-                    <th>P2 Score</th>
-                    <th>Total</th>
+                    <th>Team Score</th>
                     <th>Date</th>
                     <th>Actions</th>
                   </tr>
@@ -295,9 +293,7 @@ function AdminPanel({ teams, setTeams, courses, setCourses, scores, setScores, s
                       <td>{getTeamName(score.teamId)}</td>
                       <td><small>{score.courseName}</small></td>
                       <td>{score.nine}</td>
-                      <td>{score.player1Score}</td>
-                      <td>{score.player2Score}</td>
-                      <td><strong>{score.teamTotal}</strong></td>
+                      <td><strong>{score.teamScore}</strong></td>
                       <td>{score.date}</td>
                       <td>
                         <Button variant="primary" size="sm" className="me-2" onClick={() => handleEditScore(score)}>
@@ -473,21 +469,11 @@ function AdminPanel({ teams, setTeams, courses, setCourses, scores, setScores, s
                   </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Player 1 Score</Form.Label>
-                  <Form.Control type="number" name="player1Score" value={formData.player1Score || ''} onChange={handleChange} />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Player 2 Score</Form.Label>
-                  <Form.Control type="number" name="player2Score" value={formData.player2Score || ''} onChange={handleChange} />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Team Total</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="teamTotal"
-                    value={formData.teamTotal || (Number(formData.player1Score || 0) + Number(formData.player2Score || 0))}
-                    onChange={handleChange}
-                  />
+                  <Form.Label>Team Score (2-Man Scramble)</Form.Label>
+                  <Form.Control type="number" name="teamScore" value={formData.teamScore || ''} onChange={handleChange} min="25" max="100" />
+                  <Form.Text className="text-muted">
+                    Combined team score for 9 holes
+                  </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>Date</Form.Label>

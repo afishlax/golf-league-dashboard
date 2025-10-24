@@ -20,7 +20,7 @@ function Leaderboard({ teams, scores }) {
     // Calculate scores
     scores.forEach(score => {
       if (teamScores[score.teamId]) {
-        teamScores[score.teamId].totalPoints += score.teamTotal || 0;
+        teamScores[score.teamId].totalPoints += score.teamScore || 0;
         teamScores[score.teamId].weeksPlayed += 1;
       }
     });

@@ -125,8 +125,8 @@ app.get('/api/scores', async (req, res) => {
 // Create new score
 app.post('/api/scores', async (req, res) => {
   try {
-    const { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal } = req.body;
-    const id = await db.createScore({ teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal });
+    const { teamId, courseName, week, date, nine, teamScore } = req.body;
+    const id = await db.createScore({ teamId, courseName, week, date, nine, teamScore });
 
     // Auto-calculate handicaps after adding score (if week >= 4)
     if (week >= 4) {
@@ -142,8 +142,8 @@ app.post('/api/scores', async (req, res) => {
 // Update score
 app.put('/api/scores/:id', async (req, res) => {
   try {
-    const { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal } = req.body;
-    await db.updateScore(req.params.id, { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal });
+    const { teamId, courseName, week, date, nine, teamScore } = req.body;
+    await db.updateScore(req.params.id, { teamId, courseName, week, date, nine, teamScore });
 
     // Recalculate handicaps after updating score
     if (week >= 4) {
@@ -277,10 +277,14 @@ async function recalculateAllHandicaps() {
   const scores = await db.getAllScores();
   const courses = await db.getAllCourses();
 
-  const handicaps = handicapCalc.calculateHandicaps(teams, scores, courses);
+  const handicaps = await handicapCalc.calculateHandicaps(teams, scores, courses);
 
-  // Update all handicaps in the database
-  for (const [playerName, handicapIndex] of Object.entries(handicaps)) {
-    await db.createOrUpdateHandicap({ playerName, handicapIndex });
+  // Update all team handicaps in the database
+  for (const [teamId, handicapData] of Object.entries(handicaps)) {
+    await db.createOrUpdateHandicap({
+      teamId: handicapData.teamId,
+      teamName: handicapData.teamName,
+      handicapIndex: handicapData.handicapIndex
+    });
   }
 }
