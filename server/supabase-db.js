@@ -26,9 +26,9 @@ net.connect = function(...args) {
 };
 
 // Create connection pool
-// Using connection pooler hostname with forced IPv4 resolution
+// Using correct connection pooler hostname with forced IPv4 resolution
 const pool = new Pool({
-  host: 'aws-0-us-east-1.pooler.supabase.com',
+  host: 'aws-1-us-east-2.pooler.supabase.com',  // Correct region from Supabase
   port: 5432,
   database: 'postgres',
   user: 'postgres.dxddqhodsngiilgsxbpr',
