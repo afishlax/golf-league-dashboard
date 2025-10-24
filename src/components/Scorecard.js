@@ -2,12 +2,19 @@ import React, { useState } from 'react';
 import { Card, Form, Button, Table, Row, Col, Alert } from 'react-bootstrap';
 
 function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
+  // Initialize with first schedule item if available
+  const getInitialScheduleKey = () => {
+    if (schedule && schedule.length > 0) {
+      const item = schedule[0];
+      return `${item.week}|${item.courseName}|${item.nine}`;
+    }
+    return '';
+  };
+
   const [formData, setFormData] = useState({
     teamId: teams.length > 0 ? teams[0].id : '',
-    courseName: courses.length > 0 ? courses[0].name : '',
-    week: 1,
+    scheduleKey: getInitialScheduleKey(),
     date: new Date().toISOString().split('T')[0],
-    nine: 'F',
     teamScore: 36
   });
   const [showSuccess, setShowSuccess] = useState(false);
@@ -15,13 +22,16 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Parse the schedule key to extract week, course, and nine
+    const [week, courseName, nine] = formData.scheduleKey.split('|');
+
     const newScore = {
       id: Date.now(),
       teamId: parseInt(formData.teamId),
-      courseName: formData.courseName,
-      week: parseInt(formData.week),
+      courseName: courseName,
+      week: parseInt(week),
       date: formData.date,
-      nine: formData.nine,
+      nine: nine,
       teamScore: parseInt(formData.teamScore)
     };
 
@@ -33,15 +43,14 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // If week is changed, auto-populate course and nine from schedule
-    if (name === 'week' && schedule && schedule.length > 0) {
-      const scheduleItem = schedule.find(s => s.week === parseInt(value));
+    // If schedule is changed, update date from schedule
+    if (name === 'scheduleKey' && schedule && schedule.length > 0) {
+      const [week] = value.split('|');
+      const scheduleItem = schedule.find(s => s.week === parseInt(week));
       if (scheduleItem) {
         setFormData({
           ...formData,
-          week: value,
-          courseName: scheduleItem.courseName,
-          nine: scheduleItem.nine,
+          scheduleKey: value,
           date: scheduleItem.date
         });
         return;
@@ -52,6 +61,12 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
       ...formData,
       [name]: value
     });
+  };
+
+  // Format schedule options for dropdown
+  const formatScheduleOption = (item) => {
+    const nineText = item.nine === 'F' ? 'Front' : 'Back';
+    return `Week ${item.week} - ${item.courseName} (${nineText})`;
   };
 
   // Get team name for displaying in score history
@@ -92,58 +107,7 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Course</Form.Label>
-                      <Form.Select
-                        name="courseName"
-                        value={formData.courseName}
-                        onChange={handleChange}
-                        required
-                      >
-                        {courses.map(course => (
-                          <option key={course.name} value={course.name}>
-                            {course.name}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Row>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Week</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="week"
-                        value={formData.week}
-                        onChange={handleChange}
-                        min="1"
-                        max="16"
-                        required
-                      />
-                      <Form.Text className="text-muted">
-                        Auto-populates course & nine
-                      </Form.Text>
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Nine</Form.Label>
-                      <Form.Select
-                        name="nine"
-                        value={formData.nine}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="F">Front 9</option>
-                        <option value="B">Back 9</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Date</Form.Label>
+                      <Form.Label>Date Played</Form.Label>
                       <Form.Control
                         type="date"
                         name="date"
@@ -151,6 +115,35 @@ function Scorecard({ teams, courses, scores, schedule, onAddScore }) {
                         onChange={handleChange}
                         required
                       />
+                      <Form.Text className="text-muted">
+                        Auto-filled from schedule
+                      </Form.Text>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col md={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Week & Course</Form.Label>
+                      <Form.Select
+                        name="scheduleKey"
+                        value={formData.scheduleKey}
+                        onChange={handleChange}
+                        required
+                      >
+                        {schedule && schedule.map(item => {
+                          const key = `${item.week}|${item.courseName}|${item.nine}`;
+                          return (
+                            <option key={key} value={key}>
+                              {formatScheduleOption(item)}
+                            </option>
+                          );
+                        })}
+                      </Form.Select>
+                      <Form.Text className="text-muted">
+                        Select the week, course, and nine combination
+                      </Form.Text>
                     </Form.Group>
                   </Col>
                 </Row>
