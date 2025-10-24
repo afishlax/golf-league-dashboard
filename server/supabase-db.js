@@ -66,12 +66,23 @@ async function initializeDatabase() {
 // ========== TEAMS OPERATIONS ==========
 
 async function getAllTeams() {
-  const result = await pool.query('SELECT * FROM teams ORDER BY id');
+  const result = await pool.query(
+    `SELECT id, name, player1, player2,
+     player1_payment as "player1Payment",
+     player2_payment as "player2Payment"
+     FROM teams ORDER BY id`
+  );
   return result.rows;
 }
 
 async function getTeamById(id) {
-  const result = await pool.query('SELECT * FROM teams WHERE id = $1', [id]);
+  const result = await pool.query(
+    `SELECT id, name, player1, player2,
+     player1_payment as "player1Payment",
+     player2_payment as "player2Payment"
+     FROM teams WHERE id = $1`,
+    [id]
+  );
   return result.rows[0];
 }
 
