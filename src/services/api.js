@@ -93,3 +93,77 @@ export const fetchSchedule = async () => {
   if (!response.ok) throw new Error('Failed to fetch schedule');
   return response.json();
 };
+
+export const updateScheduleWeek = async (week, scheduleData) => {
+  const response = await fetch(`${API_BASE_URL}/schedule/${week}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(scheduleData),
+  });
+  if (!response.ok) throw new Error('Failed to update schedule');
+  return response.json();
+};
+
+// ========== TEE TIMES API ==========
+
+export const fetchTeeTimes = async () => {
+  const response = await fetch(`${API_BASE_URL}/teetimes`);
+  if (!response.ok) throw new Error('Failed to fetch tee times');
+  return response.json();
+};
+
+export const fetchTeeTimesByWeek = async (week) => {
+  const response = await fetch(`${API_BASE_URL}/teetimes/week/${week}`);
+  if (!response.ok) throw new Error('Failed to fetch tee times');
+  return response.json();
+};
+
+export const createTeeTime = async (teeTimeData) => {
+  const response = await fetch(`${API_BASE_URL}/teetimes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(teeTimeData),
+  });
+  if (!response.ok) throw new Error('Failed to create tee time');
+  return response.json();
+};
+
+export const deleteTeeTime = async (id) => {
+  const response = await fetch(`${API_BASE_URL}/teetimes/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete tee time');
+  return response.json();
+};
+
+// ========== SCORES UPDATE/DELETE API ==========
+
+export const updateScore = async (id, scoreData) => {
+  const response = await fetch(`${API_BASE_URL}/scores/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(scoreData),
+  });
+  if (!response.ok) throw new Error('Failed to update score');
+  return response.json();
+};
+
+export const deleteScore = async (id) => {
+  const response = await fetch(`${API_BASE_URL}/scores/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete score');
+  return response.json();
+};
+
+// ========== COURSES UPDATE API ==========
+
+export const updateCourse = async (name, courseData) => {
+  const response = await fetch(`${API_BASE_URL}/courses/${encodeURIComponent(name)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(courseData),
+  });
+  if (!response.ok) throw new Error('Failed to update course');
+  return response.json();
+};

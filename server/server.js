@@ -139,6 +139,35 @@ app.post('/api/scores', async (req, res) => {
   }
 });
 
+// Update score
+app.put('/api/scores/:id', async (req, res) => {
+  try {
+    const { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal } = req.body;
+    await db.updateScore(req.params.id, { teamId, courseName, week, date, nine, player1Score, player2Score, teamTotal });
+
+    // Recalculate handicaps after updating score
+    if (week >= 4) {
+      await recalculateAllHandicaps();
+    }
+
+    res.json({ message: 'Score updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete score
+app.delete('/api/scores/:id', async (req, res) => {
+  try {
+    await db.deleteScore(req.params.id);
+    // Recalculate handicaps after deleting score
+    await recalculateAllHandicaps();
+    res.json({ message: 'Score deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ========== HANDICAPS ENDPOINTS ==========
 
 // Get all handicaps
@@ -168,6 +197,75 @@ app.post('/api/handicaps/recalculate', async (req, res) => {
     await recalculateAllHandicaps();
     const handicaps = await db.getAllHandicaps();
     res.json({ message: 'Handicaps recalculated successfully', handicaps });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== TEE TIMES ENDPOINTS ==========
+
+// Get all tee times
+app.get('/api/teetimes', async (req, res) => {
+  try {
+    const teeTimes = await db.getAllTeeTimes();
+    res.json(teeTimes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get tee times by week
+app.get('/api/teetimes/week/:week', async (req, res) => {
+  try {
+    const teeTimes = await db.getTeeTimesByWeek(req.params.week);
+    res.json(teeTimes);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create tee time
+app.post('/api/teetimes', async (req, res) => {
+  try {
+    const { week, teamId, day, time } = req.body;
+    const id = await db.createTeeTime({ week, teamId, day, time });
+    res.json({ id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete tee time
+app.delete('/api/teetimes/:id', async (req, res) => {
+  try {
+    await db.deleteTeeTime(req.params.id);
+    res.json({ message: 'Tee time deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== COURSES UPDATE ENDPOINT ==========
+
+// Update course
+app.put('/api/courses/:name', async (req, res) => {
+  try {
+    const { name, par, slope, rating } = req.body;
+    await db.updateCourse(req.params.name, { name, par, slope, rating });
+    res.json({ message: 'Course updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== SCHEDULE UPDATE ENDPOINT ==========
+
+// Update schedule week
+app.put('/api/schedule/:week', async (req, res) => {
+  try {
+    const { date, courseName, nine } = req.body;
+    await db.updateScheduleWeek(req.params.week, { date, courseName, nine });
+    res.json({ message: 'Schedule updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

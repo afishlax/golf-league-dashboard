@@ -9,8 +9,9 @@ import Scorecard from './components/Scorecard';
 import Courses from './components/Courses';
 import Leaderboard from './components/Leaderboard';
 import RoundHistory from './components/RoundHistory';
+import TeeTimeSchedule from './components/TeeTimeSchedule';
 import Rules from './components/Rules';
-import Admin from './components/Admin';
+import AdminPanel from './components/AdminPanel';
 import AdminLogin from './components/AdminLogin';
 
 function App() {
@@ -119,6 +120,9 @@ function App() {
               <Nav.Link eventKey="teams">Teams</Nav.Link>
             </Nav.Item>
             <Nav.Item>
+              <Nav.Link eventKey="schedule">Schedule</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link eventKey="scorecard">Scorecard</Nav.Link>
             </Nav.Item>
             <Nav.Item>
@@ -141,6 +145,9 @@ function App() {
           <Tab.Content>
             <Tab.Pane eventKey="teams">
               <Teams teams={teams} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="schedule">
+              <TeeTimeSchedule teams={teams} schedule={schedule} />
             </Tab.Pane>
             <Tab.Pane eventKey="scorecard">
               <Scorecard
@@ -165,9 +172,15 @@ function App() {
             </Tab.Pane>
             <Tab.Pane eventKey="admin">
               {isAdminAuthenticated ? (
-                <Admin
+                <AdminPanel
                   teams={teams}
                   setTeams={setTeams}
+                  courses={courses}
+                  setCourses={setCourses}
+                  scores={scores}
+                  setScores={setScores}
+                  schedule={schedule}
+                  setSchedule={setSchedule}
                   onLogout={() => setIsAdminAuthenticated(false)}
                 />
               ) : (

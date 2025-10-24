@@ -10,6 +10,7 @@ const COURSES_FILE = path.join(DATA_DIR, 'courses.csv');
 const SCORES_FILE = path.join(DATA_DIR, 'scores.csv');
 const HANDICAPS_FILE = path.join(DATA_DIR, 'handicaps.csv');
 const SCHEDULE_FILE = path.join(DATA_DIR, 'schedule.csv');
+const TEETIMES_FILE = path.join(DATA_DIR, 'teetimes.csv');
 
 // File locking mechanism to prevent concurrent write issues
 let writeLock = Promise.resolve();
@@ -184,6 +185,94 @@ async function getAllSchedule() {
   return schedule.sort((a, b) => a.week - b.week);
 }
 
+// ========== TEE TIMES OPERATIONS ==========
+
+async function getAllTeeTimes() {
+  return await readCSV(TEETIMES_FILE);
+}
+
+async function getTeeTimesByWeek(week) {
+  const teeTimes = await readCSV(TEETIMES_FILE);
+  return teeTimes.filter(t => t.week === Number(week));
+}
+
+async function createTeeTime(teeTimeData) {
+  const teeTimes = await readCSV(TEETIMES_FILE);
+  const newId = teeTimes.length > 0 ? Math.max(...teeTimes.map(t => t.id)) + 1 : 1;
+  const newTeeTime = {
+    id: newId,
+    week: teeTimeData.week,
+    teamId: teeTimeData.teamId,
+    day: teeTimeData.day,
+    time: teeTimeData.time
+  };
+  teeTimes.push(newTeeTime);
+  await writeCSV(TEETIMES_FILE, teeTimes, ['id', 'week', 'teamId', 'day', 'time']);
+  return newId;
+}
+
+async function deleteTeeTime(id) {
+  const teeTimes = await readCSV(TEETIMES_FILE);
+  const filtered = teeTimes.filter(t => t.id !== Number(id));
+  await writeCSV(TEETIMES_FILE, filtered, ['id', 'week', 'teamId', 'day', 'time']);
+}
+
+async function updateScore(id, scoreData) {
+  const scores = await readCSV(SCORES_FILE);
+  const index = scores.findIndex(s => s.id === Number(id));
+  if (index === -1) {
+    throw new Error('Score not found');
+  }
+  scores[index] = {
+    id: Number(id),
+    teamId: scoreData.teamId,
+    courseName: scoreData.courseName,
+    week: scoreData.week,
+    date: scoreData.date,
+    nine: scoreData.nine || '',
+    player1Score: scoreData.player1Score,
+    player2Score: scoreData.player2Score,
+    teamTotal: scoreData.teamTotal
+  };
+  await writeCSV(SCORES_FILE, scores, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
+}
+
+async function deleteScore(id) {
+  const scores = await readCSV(SCORES_FILE);
+  const filtered = scores.filter(s => s.id !== Number(id));
+  await writeCSV(SCORES_FILE, filtered, ['id', 'teamId', 'courseName', 'week', 'date', 'nine', 'player1Score', 'player2Score', 'teamTotal']);
+}
+
+async function updateCourse(name, courseData) {
+  const courses = await readCSV(COURSES_FILE);
+  const index = courses.findIndex(c => c.name === name);
+  if (index === -1) {
+    throw new Error('Course not found');
+  }
+  courses[index] = {
+    name: courseData.name,
+    par: courseData.par,
+    slope: courseData.slope,
+    rating: courseData.rating
+  };
+  await writeCSV(COURSES_FILE, courses, ['name', 'par', 'slope', 'rating']);
+}
+
+async function updateScheduleWeek(week, scheduleData) {
+  const schedule = await readCSV(SCHEDULE_FILE);
+  const index = schedule.findIndex(s => s.week === Number(week));
+  if (index === -1) {
+    throw new Error('Week not found');
+  }
+  schedule[index] = {
+    week: Number(week),
+    date: scheduleData.date,
+    courseName: scheduleData.courseName,
+    nine: scheduleData.nine
+  };
+  await writeCSV(SCHEDULE_FILE, schedule, ['week', 'date', 'courseName', 'nine']);
+}
+
 module.exports = {
   initializeDatabase,
   getAllTeams,
@@ -194,7 +283,15 @@ module.exports = {
   getAllCourses,
   getAllScores,
   createScore,
+  updateScore,
+  deleteScore,
   getAllHandicaps,
   createOrUpdateHandicap,
-  getAllSchedule
+  getAllSchedule,
+  getAllTeeTimes,
+  getTeeTimesByWeek,
+  createTeeTime,
+  deleteTeeTime,
+  updateCourse,
+  updateScheduleWeek
 };
