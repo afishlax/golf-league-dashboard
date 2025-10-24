@@ -1,0 +1,251 @@
+{
+  "teams": [
+    {
+      "id": 1,
+      "name": "Ham & Turkey",
+      "player1": "Mason",
+      "player2": "Rich",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 2,
+      "name": "Dave / Stronz",
+      "player1": "Scott",
+      "player2": "Austin",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 3,
+      "name": "Pallbearers",
+      "player1": "Dave",
+      "player2": "Stronz",
+      "paymentStatus": "Both Cash 10/20"
+    },
+    {
+      "id": 4,
+      "name": "Two Boys and a Ball",
+      "player1": "Brian",
+      "player2": "Ben",
+      "paymentStatus": "Ben Cash 10/21"
+    },
+    {
+      "id": 5,
+      "name": "Ya YA Boys",
+      "player1": "Aaron",
+      "player2": "Jake",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 6,
+      "name": "Big Daddy Hacks",
+      "player1": "Willie",
+      "player2": "Todd",
+      "paymentStatus": "Todd Venmo 10/15"
+    },
+    {
+      "id": 7,
+      "name": "In the Putt",
+      "player1": "Mike T",
+      "player2": "Frank",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 8,
+      "name": "Brian / Ben",
+      "player1": "Blake",
+      "player2": "Lee",
+      "paymentStatus": "Both Cash 10/22"
+    },
+    {
+      "id": 9,
+      "name": "Weapons of Grass Destruction",
+      "player1": "Halter",
+      "player2": "Keys",
+      "paymentStatus": "Keys 10/22-Straight Cash Homey / Halter Cash 10/22"
+    },
+    {
+      "id": 10,
+      "name": "Slice Girls",
+      "player1": "Votaw",
+      "player2": "Sarah",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 11,
+      "name": "Dude Wheres My Par",
+      "player1": "Minning",
+      "player2": "Ray",
+      "paymentStatus": "Ray Cash 10/22 / Minning Venmo 10/22"
+    },
+    {
+      "id": 12,
+      "name": "Bogey Boys",
+      "player1": "Traci",
+      "player2": "Katie",
+      "paymentStatus": "Traci Venmo 10/16 / Katie Venmo 10/23"
+    },
+    {
+      "id": 13,
+      "name": "Frank & Beans",
+      "player1": "Zach",
+      "player2": "Justin",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 14,
+      "name": "Blake / Lee",
+      "player1": "Bryan",
+      "player2": "Graybar Co",
+      "paymentStatus": "Both Venmo 10/17"
+    },
+    {
+      "id": 15,
+      "name": "Lost Balls",
+      "player1": "Tyler",
+      "player2": "Matt Mitchell",
+      "paymentStatus": "Both Cash 10/20"
+    },
+    {
+      "id": 16,
+      "name": "Bunker Babes",
+      "player1": "Tony",
+      "player2": "Elevatus Co",
+      "paymentStatus": "Both Venmo 10/20"
+    },
+    {
+      "id": 17,
+      "name": "",
+      "player1": "Oberkiser",
+      "player2": "Jamie",
+      "paymentStatus": "Not Paid"
+    },
+    {
+      "id": 18,
+      "name": "",
+      "player1": "Ashley",
+      "player2": "Hubby",
+      "paymentStatus": "Both Venmo 10/22"
+    },
+    {
+      "id": 19,
+      "name": "",
+      "player1": "Cooper",
+      "player2": "Co",
+      "paymentStatus": "Cooper Venmo 10/21"
+    },
+    {
+      "id": 20,
+      "name": "",
+      "player1": "Jobie",
+      "player2": "Denver",
+      "paymentStatus": "Denver Venmo 10/23"
+    },
+    {
+      "id": 21,
+      "name": "",
+      "player1": "MyAirra",
+      "player2": "Nicole",
+      "paymentStatus": "Not Paid"
+    }
+  ],
+  "courses": [
+    {
+      "name": "True North",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Course of the Dead",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "The Reserve at Moonlight Basin",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Trump National at Doral",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Arrowhead",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Swiss Alpine",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Bear Mountain",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "DPC Spyglass",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Cabot",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Wolf Creek",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Snow Shoe",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "DPC Pebble",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Andaconda",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Cape Kidnappers",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Pasatemipo",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    },
+    {
+      "name": "Georgia Fall Edition",
+      "par": 36,
+      "slope": 135,
+      "rating": 35
+    }
+  ],
+  "handicaps": [],
+  "scores": []
+}

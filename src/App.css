@@ -1,0 +1,73 @@
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: #fff;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: 600;
+}
+
+/* Make tables responsive */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.875rem;
+  }
+}
+
+/* Value boxes styling */
+.card.bg-success,
+.card.bg-info,
+.card.bg-warning {
+  border: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+/* Smooth transitions */
+.card, .btn, .alert {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Success alert animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert {
+  animation: slideDown 0.3s ease;
+}
