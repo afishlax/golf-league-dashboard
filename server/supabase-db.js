@@ -5,21 +5,14 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 
 // Create connection pool
-// Use DATABASE_URL from environment variable, or explicit config for local development
-// Using explicit config to try to force IPv4 resolution
-const connectionConfig = process.env.DATABASE_URL
-  ? { connectionString: process.env.DATABASE_URL }
-  : {
-      host: 'db.dxddqhodsngiilgsxbpr.supabase.co',
-      port: 5432,
-      database: 'postgres',
-      user: 'postgres',
-      password: 'MC@dba.2025',  // No encoding needed with explicit config
-      ssl: { rejectUnauthorized: false }
-    };
-
+// Use DATABASE_URL from environment variable, or use connection pooler for IPv4 support
+// Supabase connection pooler supports IPv4 (direct connection is IPv6 only)
+// Password MC@dba.2025 needs @ symbols encoded as %40 -> MC%40dba.2025
 const pool = new Pool({
-  ...connectionConfig,
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres.dxddqhodsngiilgsxbpr:MC%40dba.2025@aws-0-us-east-1.pooler.supabase.com:6543/postgres',
+  ssl: {
+    rejectUnauthorized: false
+  },
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000
