@@ -10,6 +10,7 @@ import Courses from './components/Courses';
 import Leaderboard from './components/Leaderboard';
 import RoundHistory from './components/RoundHistory';
 import TeeTimeSchedule from './components/TeeTimeSchedule';
+import MySchedule from './components/MySchedule';
 import Rules from './components/Rules';
 import AdminPanel from './components/AdminPanel';
 import AdminLogin from './components/AdminLogin';
@@ -120,7 +121,10 @@ function App() {
               <Nav.Link eventKey="teams">Teams</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey="schedule">Schedule</Nav.Link>
+              <Nav.Link eventKey="schedule">Book Tee Time</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="myschedule">My Schedule</Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="scorecard">Scorecard</Nav.Link>
@@ -148,6 +152,9 @@ function App() {
             </Tab.Pane>
             <Tab.Pane eventKey="schedule">
               <TeeTimeSchedule teams={teams} schedule={schedule} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="myschedule">
+              <MySchedule teams={teams} schedule={schedule} />
             </Tab.Pane>
             <Tab.Pane eventKey="scorecard">
               <Scorecard
