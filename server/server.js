@@ -29,6 +29,27 @@ async function startServer() {
 
 startServer();
 
+// ========== ROOT ENDPOINT ==========
+
+// API Welcome/Status endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Golf League Dashboard API',
+    status: 'running',
+    database: 'Supabase PostgreSQL',
+    version: '1.0.0',
+    endpoints: {
+      teams: '/api/teams',
+      scores: '/api/scores',
+      handicaps: '/api/handicaps',
+      teeTimes: '/api/teetimes',
+      schedule: '/api/schedule',
+      courses: '/api/courses'
+    },
+    documentation: 'All endpoints support standard REST operations (GET, POST, PUT, DELETE)'
+  });
+});
+
 // ========== TEAMS ENDPOINTS ==========
 
 // Get all teams
