@@ -154,7 +154,7 @@ function App() {
               <TeeTimeSchedule teams={teams} schedule={schedule} />
             </Tab.Pane>
             <Tab.Pane eventKey="myschedule">
-              <MySchedule teams={teams} schedule={schedule} />
+              <MySchedule teams={teams} schedule={schedule} scores={scores} />
             </Tab.Pane>
             <Tab.Pane eventKey="scorecard">
               <Scorecard

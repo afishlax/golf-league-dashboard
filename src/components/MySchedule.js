@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Table, Row, Col, Badge, Alert } from 'react-bootstrap';
 import * as api from '../services/api';
 
-function MySchedule({ teams, schedule }) {
+function MySchedule({ teams, schedule, scores }) {
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [teeTimes, setTeeTimes] = useState([]);
 
@@ -27,6 +27,11 @@ function MySchedule({ teams, schedule }) {
   // Get team name and players for display
   const getTeamInfo = (teamId) => {
     return teams.find(t => t.id === Number(teamId));
+  };
+
+  // Get score for a specific week and team
+  const getScoreForWeek = (week, teamId) => {
+    return scores.find(s => s.week === week && s.teamId === Number(teamId));
   };
 
   // Filter tee times for selected team
@@ -89,11 +94,13 @@ function MySchedule({ teams, schedule }) {
                         <th>Tee Time</th>
                         <th>Course</th>
                         <th>Nine</th>
+                        <th>Score</th>
                       </tr>
                     </thead>
                     <tbody>
                       {myTeeTimes.map((teeTime) => {
                         const scheduleInfo = getScheduleInfo(teeTime.week);
+                        const scoreInfo = getScoreForWeek(teeTime.week, selectedTeamId);
                         return (
                           <tr key={teeTime.id}>
                             <td><strong>Week {teeTime.week}</strong></td>
@@ -109,6 +116,17 @@ function MySchedule({ teams, schedule }) {
                               <Badge bg="secondary">
                                 {scheduleInfo && scheduleInfo.nine === 'F' ? 'Front 9' : 'Back 9'}
                               </Badge>
+                            </td>
+                            <td className="text-center">
+                              {scoreInfo ? (
+                                <div>
+                                  <Badge bg="success" style={{ fontSize: '1.1em' }}>
+                                    {scoreInfo.teamScore}
+                                  </Badge>
+                                </div>
+                              ) : (
+                                <Badge bg="warning" text="dark">Not Played</Badge>
+                              )}
                             </td>
                           </tr>
                         );
